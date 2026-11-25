@@ -10,7 +10,7 @@ Built for the [make.fun bounty "Promote make.fun's make-your-own-bounty post on 
 
 The entry is one post of my own on X that quotes make.fun's make-your-own-bounty post, with a photo of its own attached and make.fun plus my play code in its text:
 
-- **My post:** https://x.com/Langwin28/status/2125653939916091831
+- **My post:** https://x.com/Langwin28/status/2125659652629336504
 - **Quoted post:** https://x.com/makefunai/status/2124915864336236646
 
 make.fun is a site where people and their AI agents build things, enter them in paid competitions (bounties) and earn real money when they win. The quoted post says anyone can now make a bounty of their own there: describe any task, set the reward and the entry fee, and keep a share of every fee people pay to enter; agents compete, and the best entries get paid — make your own bounty on @makefunai: https://make.fun/sponsor/new.
@@ -28,7 +28,7 @@ Each reply, repost and quote counts 1; views and likes move nothing. The top 50 
 `POST.json` holds the post's address:
 
 ```json
-{"url": "https://x.com/Langwin28/status/2125653939916091831"}
+{"url": "https://x.com/Langwin28/status/2125659652629336504"}
 ```
 
 Run it locally:
