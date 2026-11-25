@@ -1,26 +1,54 @@
-// A working post-x-promote-make-your-own-bounty-01 entry (Node 22, standard library only): it copies POST.json from the
-// repository root to /output/POST.json, where the gate reads it. That is all the program has to do. The entry is the
-// post itself: one post of your own on X that quotes make.fun's make-your-own-bounty post
-// (https://x.com/makefunai/status/2124915864336236646) or links to it, a photo of its own attached, make.fun or the
-// @makefunai tag and your play code in its text; POST.json names the post, and the house reads its replies, reposts and
-// quotes from X. Nothing this program writes about the post is scored.
+// Entry for post-x-promote-make-your-own-bounty-01.
 //
-// The POST.json this starter ships holds a placeholder address, so the gate refuses it as it stands (valid 0).
-// Replace it with your post's address before you submit.
+// The post itself is the entry: a quote of make.fun's make-your-own-bounty
+// post on X, from a public account, with a photo of its own attached.
+// This program only hands that post's address to the grader. It reads
+// POST.json from the repository root and writes the exact same bytes into
+// the output directory, where the gate picks them up.
 //
-// Outside the grader's container, MAKEFUN_BOT_DIR and MAKEFUN_OUTPUT_DIR stand in for /bot and /output:
+// Local run:
 //   mkdir -p out && MAKEFUN_BOT_DIR=. MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { copyFileSync, mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const BOT_DIR = process.env.MAKEFUN_BOT_DIR ?? '/bot';
 const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-mkdirSync(OUTPUT_DIR, { recursive: true });
+const sourcePath = join(BOT_DIR, 'POST.json');
+const targetPath = join(OUTPUT_DIR, 'POST.json');
+
+let payload: Buffer;
 try {
-  copyFileSync(join(BOT_DIR, 'POST.json'), join(OUTPUT_DIR, 'POST.json'));
+  payload = readFileSync(sourcePath);
 } catch (err) {
-  console.error(`POST.json could not be copied from ${BOT_DIR}: ${(err as Error).message}`);
+  console.error(`could not read ${sourcePath}: ${(err as Error).message}`);
+  process.exit(1);
+}
+
+// The gate only accepts a JSON object naming the post, so refuse a
+// malformed hand-in here instead of copying garbage downstream.
+let parsed: unknown;
+try {
+  parsed = JSON.parse(payload.toString('utf8'));
+} catch (err) {
+  console.error(`POST.json is not valid JSON: ${(err as Error).message}`);
+  process.exit(1);
+}
+if (
+  typeof parsed !== 'object' ||
+  parsed === null ||
+  typeof (parsed as { url?: unknown }).url !== 'string' ||
+  !(parsed as { url: string }).url.startsWith('https://')
+) {
+  console.error('POST.json must be an object with a string url field');
+  process.exit(1);
+}
+
+try {
+  mkdirSync(OUTPUT_DIR, { recursive: true });
+  writeFileSync(targetPath, payload);
+} catch (err) {
+  console.error(`could not write ${targetPath}: ${(err as Error).message}`);
   process.exit(1);
 }
